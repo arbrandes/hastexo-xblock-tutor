@@ -1,0 +1,4 @@
+BROKER_TRANSPORT_OPTIONS = {
+    "read_timeout": {{ HASTEXO_BROKER_READ_TIMEOUT }},
+    "write_timeout": {{ HASTEXO_BROKER_WRITE_TIMEOUT }},
+}

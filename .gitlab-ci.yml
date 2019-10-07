@@ -1,0 +1,40 @@
+build:image:
+  script:
+    - apk add --no-cache docker
+    - python setup.py install
+    - tutor plugins enable hastexo
+    - tutor config save
+    - tutor images build hastexo
+  only:
+    refs:
+      - master
+  tags:
+    - private
+  stage: build
+
+deploy:image:
+  script:
+    - apk add --no-cache docker
+    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+    - python setup.py install
+    - tutor plugins enable hastexo
+    - tutor config save
+    - tutor images push hastexo
+  only:
+    refs:
+      - master
+  tags:
+    - private
+  stage: deploy
+
+deploy:pypi:
+  script:
+    - pip3 install -U setuptools twine
+    - python3 setup.py sdist
+    - twine upload --skip-existing dist/hastexo-xblock-tutor*.tar.gz
+  only:
+    refs:
+      - master
+  tags:
+    - private
+  stage: deploy

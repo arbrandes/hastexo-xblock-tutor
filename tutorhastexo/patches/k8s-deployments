@@ -1,0 +1,125 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hastexo-xblock-suspender
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hastexo-xblock-suspender
+  template:
+    metadata:
+      labels:
+        app: hastexo-xblock-suspender
+    spec:
+      containers:
+        - name: hastexo-xblock-suspender
+          image: {{ DOCKER_REGISTRY }}{{ DOCKER_IMAGE_OPENEDX }}
+          args: ["./manage.py", "lms", "suspender"]
+          volumeMounts:
+            - mountPath: /openedx/edx-platform/lms/envs/tutor/
+              name: settings-lms
+            - mountPath: /openedx/edx-platform/cms/envs/tutor/
+              name: settings-cms
+            - mountPath: /openedx/config
+              name: config
+            - mountPath: /openedx/data
+              name: data
+      volumes:
+        - name: settings-lms
+          configMap:
+            name: openedx-settings-lms
+        - name: settings-cms
+          configMap:
+            name: openedx-settings-cms
+        - name: config
+          configMap:
+            name: openedx-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: lms-data
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hastexo-xblock-reaper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hastexo-xblock-reaper
+  template:
+    metadata:
+      labels:
+        app: hastexo-xblock-reaper
+    spec:
+      containers:
+        - name: hastexo-xblock-reaper
+          image: {{ DOCKER_REGISTRY }}{{ DOCKER_IMAGE_OPENEDX }}
+          args: ["./manage.py", "lms", "reaper"]
+          volumeMounts:
+            - mountPath: /openedx/edx-platform/lms/envs/tutor/
+              name: settings-lms
+            - mountPath: /openedx/edx-platform/cms/envs/tutor/
+              name: settings-cms
+            - mountPath: /openedx/config
+              name: config
+            - mountPath: /openedx/data
+              name: data
+      volumes:
+        - name: settings-lms
+          configMap:
+            name: openedx-settings-lms
+        - name: settings-cms
+          configMap:
+            name: openedx-settings-cms
+        - name: config
+          configMap:
+            name: openedx-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: lms-data
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guacd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: guacd
+  template:
+    metadata:
+      labels:
+        app: guacd
+    spec:
+      containers:
+        - name: guacd
+          image: {{ DOCKER_REGISTRY }}{{ HASTEXO_GUACD_DOCKER_IMAGE }}
+          ports:
+            - containerPort: 4822
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hastexo-xblock
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hastexo-xblock
+  template:
+    metadata:
+      labels:
+        app: hastexo-xblock
+    spec:
+      containers:
+        - name: hastexo-xblock
+          image: {{ DOCKER_REGISTRY }}{{ HASTEXO_XBLOCK_DOCKER_IMAGE }}
+          ports:
+            - containerPort: 8080

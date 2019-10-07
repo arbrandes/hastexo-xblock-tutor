@@ -1,0 +1,4 @@
+# Install hastexo xblock requirements
+RUN apt update && \
+    apt install -y iputils-ping \
+    && rm -rf /var/lib/apt/lists/*
